@@ -1,0 +1,54 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2020-12-05T11:51:02+00:00\n"
+"PO-Revision-Date: 2020-12-05T11:51:02+00:00\n"
+"Language: \n"
+
+msgid "plugins.generic.customRegisterForm.displayName"
+msgstr "Custom Register Form Plugin"
+
+msgid "plugins.generic.customRegisterForm.description"
+msgstr "Allows custom fields to be add to the register form."
+
+msgid "plugins.generic.registerPage.label.academicTitle"
+msgstr "Academic title"
+
+msgid "plugins.generic.registerPage.label.academicTitle"
+msgstr "Academic title"
+
+msgid "plugins.generic.registerPage.label.firstName"
+msgstr "First name"
+
+msgid "plugins.generic.registerPage.label.lastName"
+msgstr "Fanily name"
+
+msgid "plugins.generic.registerPage.label.url"
+msgstr "Personal website URL"
+
+msgid "plugins.generic.registerPage.label.pagetitle"
+msgstr "Register with Language Science Press"
+
+msgid "plugins.generic.registerPage.label.register"
+msgstr "I want to register with Languages Science Press:"
+
+msgid "plugins.generic.registerPage.label.supporter"
+msgstr "I want to support Language Science Press as:"
+
+msgid "plugins.generic.registerPage.label.subscriber"
+msgstr "I want to subscribe to:"
+
+msgid "plugins.generic.registerPage.label.captcha.heading"
+msgstr "Please verify that you are human:"
+
+msgid "plugins.generic.registerPage.label.captcha.info"
+msgstr "Please answer the following question to demonstrate that you are not a machine run by spammers. Just give the obvious answer."
+
+msgid "plugins.generic.registerPage.captchaNotVaslid"
+msgstr "Please revise your answer to the Captcha question!"

@@ -1,0 +1,76 @@
+
+
+#registerPage p.intro {
+    font-weight: bold;
+    padding: 20px 0;
+}
+
+
+#supporter_and_subscriber .checkbox_and_radiobutton li {
+    list-style: none;
+}
+
+
+.pkp_form .req {
+    color: #cc0000;
+    font-weight: bold;
+    padding-left: 3px;
+}
+
+#registerPage .footnote{
+	margin: 0;	
+}
+
+
+#supporter_and_subscriber .checkbox_and_radiobutton li label {
+    line-height: 150%;
+    padding: 0 0 5px;
+}
+
+#sign div.sign_inputs {
+    height: 60px;
+}
+
+#register_form_row div.footnotes {
+	font-size: 12px;
+	clear: left;
+	margin: 0px;
+}
+
+#register_form_row {
+	clear: both;
+}
+
+#register_form_row .inline {
+	float: left;
+	margin-right: 5px;
+}
+
+#supporter_and_subscriber  .checkbox_and_radiobutton input {
+	float:left;
+	margin: 2px 7px 0px 0px;
+}
+
+#sign a.privacyStatement {
+	float:right;
+}
+
+#sign div.footnotes {
+	clear:left;
+}
+
+#registerUserInfos p {
+	clear:left;
+}
+#otherLanguage label{
+	float:left;
+	padding-right: 10px;
+}
+
+#buttonRegister {
+	float: right;
+}
+
+.error {
+	background-color:yellow;
+}
