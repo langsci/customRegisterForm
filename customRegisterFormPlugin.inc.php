@@ -108,11 +108,13 @@ class customRegisterFormPlugin extends GenericPlugin {
             foreach ($fields as $field) {
                 if ($field == 'url') {
                     $url = $this->_registrationForm->getData($field);
-                    // add protocol if not present 
-                    if (!preg_match("~^(?:f|ht)tps?://~i", $url)) {
-                        $url = "http://" . $url;
-                    }
-                    $user->setData($field,$url);
+		    if (!empty($url)) {
+                       // add protocol if not present 
+                       if (!preg_match("~^(?:f|ht)tps?://~i", $url)) {
+                          $url = "http://" . $url;
+                       }
+                       $user->setData($field,$url);
+		    }
                 } else {
                     $user->setData($field, $this->_registrationForm->getData($field));
                 }
