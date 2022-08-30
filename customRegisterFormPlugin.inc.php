@@ -36,7 +36,15 @@ class customRegisterFormPlugin extends GenericPlugin {
      */
     function register($category, $path, $mainContextId = null) {
         $success = parent::register($category, $path, $mainContextId);
+
+        if (defined('RUNNING_UPGRADE')) {
+            // fix bug in installPluginVersion.php not instantinating locales
+            HookRegistry::register('Installer::Installer', array($this, 'callbackInstall'));
+        }
+
         if ($success && $this->getEnabled($mainContextId)) {
+            $this->addLocaleData();
+            
             HookRegistry::register('registrationform::Constructor', array($this, 'callbackRegistrationFormConstruct'));
             HookRegistry::register('registrationform::readuservars', array($this, 'callbackRegistrationFormReadUserVars'));
             HookRegistry::register('registrationform::execute', array($this, 'callbackRegistrationFormExecute'));
@@ -46,6 +54,11 @@ class customRegisterFormPlugin extends GenericPlugin {
             HookRegistry::register('userdao::getAdditionalFieldNames', array($this, 'addFieldName'));
         }
         return $success;
+    }
+
+    function callbackInstall($hookname, $args) {
+        $installer = $args[0];
+        $installer->installedLocales = array_keys(AppLocale::getAllLocales());
     }
 
     function callbackRegistrationFormConstruct($hookName, $args) {
@@ -104,19 +117,64 @@ class customRegisterFormPlugin extends GenericPlugin {
     function callbackRegistrationFormExecute($hookName, $args) {
         if ($hookName == 'registrationform::execute') {       
             $user = $this->_registrationForm->user;           
-            $fields = ['inputAcademicTitle','url'];
+            $fields = ['inputAcademicTitle','url','Proofreader'];
             foreach ($fields as $field) {
-                if ($field == 'url') {
-                    $url = $this->_registrationForm->getData($field);
-		    if (!empty($url)) {
-                       // add protocol if not present 
-                       if (!preg_match("~^(?:f|ht)tps?://~i", $url)) {
-                          $url = "http://" . $url;
-                       }
-                       $user->setData($field,$url);
-		    }
-                } else {
-                    $user->setData($field, $this->_registrationForm->getData($field));
+                switch ($field) {
+                    case 'url': 
+                        $url = $this->_registrationForm->getData($field);
+                        if (!empty($url)) {
+                        // add protocol if not present 
+                        if (!preg_match("~^(?:f|ht)tps?://~i", $url)) {
+                            $url = "http://" . $url;
+                        }
+                        $user->setData($field,$url);
+                        }
+                        break;
+                    case 'Proofreader':
+                        // send notification mail
+                        $request = Application::get()->getRequest();
+                        import('lib.pkp.classes.mail.MailTemplate');
+                        $mail = new MailTemplate('PROOFREADER_REGISTER_NOTIFY');
+                        $site = $request->getSite();
+                        $context = $request->getContext();
+                
+                        // Set the sender based on the current context
+                        if ($context && $context->getData('supportEmail')) {
+                            $mail->setReplyTo($context->getData('supportEmail'), $context->getData('supportName'));
+                        } else {
+                            $mail->setReplyTo($site->getLocalizedContactEmail(), $site->getLocalizedContactName());
+                        }
+
+                        // set template variables
+                        $mail->assignParams(array(
+                            'userName' => $user->getFullName(),
+                            'contextName' => $context ? $context->getLocalizedName() : $site->getLocalizedTitle(),
+                            'userEmail' => $user->getEmail()
+                        ));
+                        
+                        // get the Mailing List Manager (MLM) group
+                        $userGroupDao = DAORegistry::getDAO('UserGroupDAO'); /* @var $userGroupDao UserGroupDAO */
+		                $userGroups = $userGroupDao->getByContextId($context->getId());
+                        $userGroups = array_filter($userGroups->toArray(),
+                            function($v) {
+                                return $v->getLocalizedData('abbrev') === 'MLM'?$v:false;
+                            }
+                        );
+
+                        // add all group members as recepient
+                        for ($users = $userGroupDao->getUsersById(array_shift($userGroups)->getData('id')); $user = $users->next(); ) {
+                            $mail->addRecipient($user->getEmail(), $user->getFullName());
+                        }                        
+                        
+                        if (!$mail->send()) {
+                            import('classes.notification.NotificationManager');
+                            $notificationMgr = new NotificationManager();
+                            $notificationMgr->createTrivialNotification($user->getId(), NOTIFICATION_TYPE_ERROR, array('contents' => __('email.compose.error')));
+                        }
+                        unset($mail);
+                        break;
+                    default:
+                        $user->setData($field, $this->_registrationForm->getData($field));
                 }
             }
         }
@@ -160,6 +218,13 @@ class customRegisterFormPlugin extends GenericPlugin {
         }
         return false;
     }
+
+	/**
+	 * @see Plugin::getInstallEmailTemplatesFile
+	 */
+	function getInstallEmailTemplatesFile() {
+		return ($this->getPluginPath() . DIRECTORY_SEPARATOR . 'xml' . DIRECTORY_SEPARATOR . 'emailTemplates.xml');
+	}
     
     function getDisplayName() {
         return __('plugins.generic.customRegisterForm.displayName');
@@ -169,5 +234,3 @@ class customRegisterFormPlugin extends GenericPlugin {
         return __('plugins.generic.customRegisterForm.description');
     }
 }
-
-

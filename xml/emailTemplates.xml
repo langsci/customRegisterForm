@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE emails SYSTEM "../../../../lib/pkp/dtd/emailTemplates.dtd">
+
+<!--
+ * @file plugins/generic/customRegisterForm/xml/emailTemplates.xml
+ * Copyright (c) 2020 Language Science Press
+ * Developed by Ronald Steffen
+ * Distributed under the MIT license. For full terms see the file docs/License.
+-->
+<emails>
+	<email key="PROOFREADER_REGISTER_NOTIFY" can_edit="1" can_disable="1" subject="emails.customRegisterForm.subject" description="emails.customRegisterForm.description" body="emails.customRegisterForm.body"/>
+</emails>
