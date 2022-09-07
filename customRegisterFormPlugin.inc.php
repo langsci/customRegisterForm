@@ -123,56 +123,57 @@ class customRegisterFormPlugin extends GenericPlugin {
                     case 'url': 
                         $url = $this->_registrationForm->getData($field);
                         if (!empty($url)) {
-                        // add protocol if not present 
-                        if (!preg_match("~^(?:f|ht)tps?://~i", $url)) {
-                            $url = "http://" . $url;
-                        }
-                        $user->setData($field,$url);
+                            // add protocol if not present 
+                            if (!preg_match("~^(?:f|ht)tps?://~i", $url)) {
+                                $url = "http://" . $url;
+                            }
+                            $user->setData($field,$url);
                         }
                         break;
                     case 'Proofreader':
-                        // send notification mail
-                        $request = Application::get()->getRequest();
-                        import('lib.pkp.classes.mail.MailTemplate');
-                        $mail = new MailTemplate('PROOFREADER_REGISTER_NOTIFY');
-                        $site = $request->getSite();
-                        $context = $request->getContext();
-                
-                        // Set the sender based on the current context
-                        if ($context && $context->getData('supportEmail')) {
-                            $mail->setReplyTo($context->getData('supportEmail'), $context->getData('supportName'));
-                        } else {
-                            $mail->setReplyTo($site->getLocalizedContactEmail(), $site->getLocalizedContactName());
-                        }
-
-                        // set template variables
-                        $mail->assignParams(array(
-                            'userName' => $user->getFullName(),
-                            'contextName' => $context ? $context->getLocalizedName() : $site->getLocalizedTitle(),
-                            'userEmail' => $user->getEmail()
-                        ));
-                        
-                        // get the Mailing List Manager (MLM) group
-                        $userGroupDao = DAORegistry::getDAO('UserGroupDAO'); /* @var $userGroupDao UserGroupDAO */
-		                $userGroups = $userGroupDao->getByContextId($context->getId());
-                        $userGroups = array_filter($userGroups->toArray(),
-                            function($v) {
-                                return $v->getLocalizedData('abbrev') === 'MLM'?$v:false;
+                        if ($this->_registrationForm->getData($field) == 'on') {
+                            // send notification mail
+                            $request = Application::get()->getRequest();
+                            import('lib.pkp.classes.mail.MailTemplate');
+                            $mail = new MailTemplate('PROOFREADER_REGISTER_NOTIFY');
+                            $site = $request->getSite();
+                            $context = $request->getContext();
+                    
+                            // Set the sender based on the current context
+                            if ($context && $context->getData('supportEmail')) {
+                                $mail->setReplyTo($context->getData('supportEmail'), $context->getData('supportName'));
+                            } else {
+                                $mail->setReplyTo($site->getLocalizedContactEmail(), $site->getLocalizedContactName());
                             }
-                        );
 
-                        // add all group members as recepient
-                        for ($users = $userGroupDao->getUsersById(array_shift($userGroups)->getData('id')); $user = $users->next(); ) {
-                            $mail->addRecipient($user->getEmail(), $user->getFullName());
-                        }                        
-                        
-                        if (!$mail->send()) {
-                            import('classes.notification.NotificationManager');
-                            $notificationMgr = new NotificationManager();
-                            $notificationMgr->createTrivialNotification($user->getId(), NOTIFICATION_TYPE_ERROR, array('contents' => __('email.compose.error')));
+                            // set template variables
+                            $mail->assignParams(array(
+                                'userName' => $user->getFullName(),
+                                'contextName' => $context ? $context->getLocalizedName() : $site->getLocalizedTitle(),
+                                'userEmail' => $user->getEmail()
+                            ));
+                            
+                            // get the Mailing List Manager (MLM) group
+                            $userGroupDao = DAORegistry::getDAO('UserGroupDAO'); /* @var $userGroupDao UserGroupDAO */
+                            $userGroups = $userGroupDao->getByContextId($context->getId());
+                            $userGroups = array_filter($userGroups->toArray(),
+                                function($v) {
+                                    return $v->getLocalizedData('abbrev') === 'MLM'?$v:false;
+                                }
+                            );
+
+                            // add all group members as recepient
+                            for ($membersMLM = $userGroupDao->getUsersById(array_shift($userGroups)->getData('id')); $memberMLM = $membersMLM->next(); ) {
+                                $mail->addRecipient($memberMLM->getEmail(), $memberMLM->getFullName());
+                            }                        
+                            
+                            if (!$mail->send()) {
+                                import('classes.notification.NotificationManager');
+                                $notificationMgr = new NotificationManager();
+                                $notificationMgr->createTrivialNotification($user->getId(), NOTIFICATION_TYPE_ERROR, array('contents' => __('email.compose.error')));
+                            }
+                            unset($mail);
                         }
-                        unset($mail);
-                        break;
                     default:
                         $user->setData($field, $this->_registrationForm->getData($field));
                 }
