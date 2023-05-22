@@ -15,7 +15,7 @@ msgid "emails.customRegisterForm.subject"
 msgstr "New proofreader registration"
 
 msgid "emails.customRegisterForm.body"
-msgstr "A new prrofreader {$userName} ({$userEmail}) has registered with {$contextName}.<br />\n"
+msgstr "A new proofreader {$userName} ({$userEmail}) has registered with {$contextName}.<br />\n"
 
 msgid "emails.customRegisterForm.description"
 msgstr "This email template is used to notify users with the role \"mailing list manager\" that a new proofreader has registered."
